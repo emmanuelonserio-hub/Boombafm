@@ -1,0 +1,25 @@
+   found = True
+    if not found:
+        print("No songs found inside your music folders.")
+
+def search_songs(query):
+    print(f"\nSearch results for '{query}':")
+    found = False
+    for genre in os.listdir(MUSIC_DIR):
+        genre_path = os.path.join(MUSIC_DIR, genre)
+        if os.path.isdir(genre_path):
+            for song in os.listdir(genre_path):
+                if query.lower() in genre.lower() or query.lower() in song.lower():
+                    print(f"{genre} - {song}")
+                    found = True
+    if not found:
+        print("No matching songs found.")
+
+def play_song(genre, song):
+    song_path = os.path.join(MUSIC_DIR, genre, song)
+    if os.path.exists(song_path):
+        pygame.mixer.music.load(song_path)
+        pygame.mixer.music.play()
+        print(f"Now playing: {genre} - {song}")
+    else:
+        print("Song not found!")
