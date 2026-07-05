@@ -1,0 +1,26 @@
+
+
+        choice = input("Enter choice: ")
+
+        if choice == "1":
+            list_songs()
+        elif choice == "2":
+            genre = input("Enter genre folder name: ")
+            song = input("Enter song filename: ")
+            play_song(genre, song)
+        elif choice == "3":
+            pause_song()
+        elif choice == "4":
+            resume_song()
+        elif choice == "5":
+            stop_song()
+        elif choice == "6":
+            query = input("Enter search term: ")
+            search_songs(query)
+        elif choice == "7":
+            break
+        else:
+            print("Invalid choice!")
+
+if __name__ == "__main__":
+    main()
