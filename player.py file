@@ -1,0 +1,124 @@
+import pygame
+import os
+
+print("RUNNING PLAYER FROM:", __file__)
+class MusicPlayer:
+
+    def __init__(self):
+        pygame.mixer.init()
+
+        self.songs = []
+        self.current_song = 0
+
+    def load_songs(self):
+
+        self.songs.clear()
+
+        # Get project folder
+        base_path = os.path.dirname(
+            os.path.dirname(os.path.abspath(__file__))
+        )
+
+        # Music folder
+        music_folder = os.path.join(base_path, "music")
+
+        print("Looking in:", music_folder)
+
+        if not os.path.exists(music_folder):
+            print("❌ Music folder not found!")
+            return
+
+        # Search every playlist folder
+        for playlist in os.listdir(music_folder):
+
+            playlist_path = os.path.join(
+                music_folder,
+                playlist
+            )
+
+            if os.path.isdir(playlist_path):
+
+                print(f"\nPlaylist: {playlist}")
+
+                for song in os.listdir(playlist_path):
+
+                    if song.lower().endswith((
+                        ".mp3",
+                        ".wav",
+                        ".ogg",
+                        ".flac",
+                        ".aac",
+                        ".m4a",
+                        ".wma",
+                        ".opus"
+                    )):
+
+                        full_path = os.path.join(
+                            playlist_path,
+                            song
+                        )
+
+                        self.songs.append(full_path)
+
+                        print("Loaded:", song)
+
+        print(f"\n✅ Total songs loaded: {len(self.songs)}")
+
+    def play(self):
+
+        if not self.songs:
+            print("❌ No songs available.")
+            return
+
+        pygame.mixer.music.load(
+            self.songs[self.current_song]
+        )
+
+        pygame.mixer.music.play()
+
+        print(
+            "▶ Playing:",
+            os.path.basename(
+                self.songs[self.current_song]
+            )
+        )
+
+    def pause(self):
+        pygame.mixer.music.pause()
+
+    def resume(self):
+        pygame.mixer.music.unpause()
+
+    def stop(self):
+        pygame.mixer.music.stop()
+
+    def next_song(self):
+
+        if not self.songs:
+            return
+
+        self.current_song += 1
+
+        if self.current_song >= len(self.songs):
+            self.current_song = 0
+
+        self.play()
+
+    def previous_song(self):
+
+        if not self.songs:
+            return
+
+        self.current_song -= 1
+
+        if self.current_song < 0:
+            self.current_song = len(self.songs) - 1
+
+        self.play()
+
+
+if __name__ == "__main__":
+
+    player = MusicPlayer()
+
+    player.load_songs()
