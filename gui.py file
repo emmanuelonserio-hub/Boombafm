@@ -1,0 +1,285 @@
+import os
+import ttkbootstrap as ttk
+from ttkbootstrap.constants import *
+from player import MusicPlayer
+
+
+class MusicGUI:
+
+    def __init__(self):
+
+        self.root = ttk.Window(themename="darkly")
+        self.root.title("📻 Boomba FM - Vintage Radio")
+        self.root.geometry("1300x750")
+        self.root.minsize(1100,700)
+
+        self.player = MusicPlayer()
+        self.player.load_songs()
+
+        self.create_layout()
+        self.load_song_list()
+
+        self.root.mainloop()
+
+
+    # ===============================================
+
+    def create_layout(self):
+
+        # MAIN BACKGROUND
+
+        self.main = ttk.Frame(self.root)
+        self.main.pack(fill=BOTH, expand=True, padx=20, pady=20)
+
+
+        # HEADER
+
+        title = ttk.Label(
+            self.main,
+            text="📻 BOOMBA FM",
+            font=("Georgia",32,"bold")
+        )
+
+        title.pack(pady=10)
+
+
+        subtitle = ttk.Label(
+            self.main,
+            text="Classic Sounds • Vintage Radio Experience",
+            font=("Georgia",14)
+        )
+
+        subtitle.pack()
+
+
+        # CONTENT AREA
+
+        content = ttk.Frame(self.main)
+        content.pack(fill=BOTH, expand=True, pady=20)
+
+
+
+        # LEFT RADIO PANEL
+
+        self.left = ttk.Frame(
+            content,
+            width=300
+        )
+
+        self.left.pack(
+            side=LEFT,
+            fill=Y,
+            padx=15
+        )
+
+
+        # VINYL DISPLAY
+
+        ttk.Label(
+            self.left,
+            text="💿",
+            font=("Segoe UI",100)
+        ).pack(pady=20)
+
+
+        ttk.Label(
+            self.left,
+            text="VINYL PLAYER",
+            font=("Georgia",16,"bold")
+        ).pack()
+
+
+        # SEARCH
+
+        self.search = ttk.Entry(
+            self.left,
+            width=25
+        )
+
+        self.search.pack(pady=20)
+
+
+        ttk.Button(
+            self.left,
+            text="🔍 Search"
+        ).pack()
+
+
+        # PLAYLIST
+
+        ttk.Label(
+            self.left,
+            text="📂 Playlists",
+            font=("Georgia",16,"bold")
+        ).pack(pady=20)
+
+
+        self.playlists = ttk.Treeview(
+            self.left,
+            show="tree",
+            height=10
+        )
+
+        self.playlists.pack(
+            fill=X
+        )
+
+
+
+        # RIGHT PANEL
+
+        self.right = ttk.Frame(content)
+
+        self.right.pack(
+            side=RIGHT,
+            fill=BOTH,
+            expand=True
+        )
+
+
+        # SONG COLLECTION
+
+        ttk.Label(
+            self.right,
+            text="🎶 SONG COLLECTION",
+            font=("Georgia",20,"bold")
+        ).pack(pady=10)
+
+
+
+        self.song_list = ttk.Treeview(
+            self.right,
+            columns=("Song",),
+            show="headings"
+        )
+
+
+        self.song_list.heading(
+            "Song",
+            text="Track"
+        )
+
+
+        self.song_list.column(
+            "Song",
+            width=700
+        )
+
+
+        self.song_list.pack(
+            fill=BOTH,
+            expand=True
+        )
+
+
+        self.song_list.bind(
+            "<Double-1>",
+            self.play_selected
+        )
+
+
+
+        # CONTROL PANEL
+
+        controls = ttk.Frame(self.right)
+
+        controls.pack(
+            pady=25
+        )
+
+
+        buttons = [
+            ("⏮", self.player.previous_song),
+            ("▶", self.play_music),
+            ("⏸", self.player.pause),
+            ("⏹", self.player.stop),
+            ("⏭", self.player.next_song)
+        ]
+
+
+        for i,(text,command) in enumerate(buttons):
+
+            ttk.Button(
+                controls,
+                text=text,
+                command=command,
+                width=5
+            ).grid(
+                row=0,
+                column=i,
+                padx=8
+            )
+
+
+
+        # NOW PLAYING DISPLAY
+
+        self.now_playing = ttk.Label(
+            self.right,
+            text="📻 Now Playing: Nothing",
+            font=("Georgia",14,"bold")
+        )
+
+        self.now_playing.pack(
+            pady=10
+        )
+
+
+    # ===============================================
+
+
+    def load_song_list(self):
+
+        for song in self.player.songs:
+
+            self.song_list.insert(
+                "",
+                END,
+                values=(
+                    os.path.basename(song),
+                )
+            )
+
+
+    # ===============================================
+
+
+    def play_music(self):
+
+        self.player.play()
+
+        if self.player.songs:
+
+            self.now_playing.config(
+                text="📻 Now Playing: " +
+                os.path.basename(
+                    self.player.songs[
+                        self.player.current_song
+                    ]
+                )
+            )
+
+
+    # ===============================================
+
+
+    def play_selected(self,event):
+
+        selected = self.song_list.selection()
+
+        if not selected:
+            return
+
+
+        index = self.song_list.index(
+            selected[0]
+        )
+
+        self.player.current_song = index
+
+        self.play_music()
+
+
+
+if __name__ == "__main__":
+    MusicGUI()
